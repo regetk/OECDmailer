@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Bootstrap Example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+        <style>
+
+        </style>
+    </head>
+    <body>
+
+        <div class="container-fluid">
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+                New e-mail
+            </button>
+        </div>
+
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+
+                        <img src="http://upload.wikimedia.org/wikipedia/en/0/0d/OECD_logo_new.svg" >
+                        <span class="modal-title" id="myModalLabel">email sender</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" action="/form" ENCTYPE="multipart/form-data" method="POST" name="mailForm" id="mailForm" role="form">
+                            <div class="form-group">
+                                <label class="control-label col-md-4" for="email">Email To</label>
+                                <div class="col-md-6 input-group">
+                                    <span class="input-group-addon" style="color:red;">*</span>
+                                    <input type="email" required="required" class="form-control required" id="email" name="email" placeholder="Email To"/>
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4" for="subject">Subject</label>
+                                <div class="col-md-6 input-group">
+                                    <span class="input-group-addon" style="color:red;">*</span>
+                                    <input type="text" required="required" class="form-control" id="subject" name="subject" placeholder="Email subject" maxlength="128"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-4" for="email_text">Email text</label>
+                                <div class="col-md-6 input-group">
+                                    <span class="input-group-addon" style="color:red;">*</span>
+                                    <textarea required="required"  rows="10" class="form-control" id="email_text" name="email_text" placeholder="Email text"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-offset-4 col-md-6 text-right">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                    <button type="reset" class="btn btn-default">Clear fields</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="alert alert-success hidden" role="alert" id="success_alert">E-mail sent successfully!</div>
+                        <div class="alert alert-danger hidden" role="alert" id="error_alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+
+            $("#mailForm").submit(function (event) {
+                event.preventDefault();
+                if ($(".required").val().length === 0) {
+                    event.preventDefault();
+                }
+                else {
+                    var data= $("#mailForm").serialize();
+                    var jData=JSON.stringify(data);
+                    $.ajax({
+                        url: 'http://localhost:8080/form',
+                        data: data, 
+                        dataType: 'json', 
+                        type: 'POST', 
+                        async: false,
+                        success: function (data) {
+                            var message="";
+                            if(data.status!=undefined){
+                                message+=("Status: "+data.status+"\n");
+                            }
+                            if(data.message!=undefined){
+                                message+=("Message: "+data.message+"\n");
+                            }
+                            if(data.stacktrace!=undefined){
+                                message+=("Stacktrace: "+data.stacktrace+"\n");
+                            }
+                           alert(message); 
+                                
+
+                        },
+                        error: function (data) { 
+                        }
+                    });
+                    
+                }
+            });
+
+
+            $('.modal').on('hidden.bs.modal', function () {
+                $(this).find('form')[0].reset();
+                $('#alert_success').hide();
+                $('#alert_error').hide();
+            });
+
+
+
+        </script>
+
+    </body>
+</html>

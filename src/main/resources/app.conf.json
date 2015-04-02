@@ -1,0 +1,12 @@
+{
+    "mailer_config": {
+        "host": "smtp.gmail.com",
+        "port": 587,
+        "ssl": false,
+        "tls": true,
+        "auth": true,
+        "username": "user",
+        "password": "pass",
+        "from":"testservice@gmail.com"
+    }
+}
