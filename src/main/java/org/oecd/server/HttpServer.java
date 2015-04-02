@@ -1,6 +1,5 @@
 package org.oecd.server;
 
-import java.util.Date;
 import java.util.Map;
 import org.oecd.messagebeans.StatusMessageJSON;
 import org.vertx.java.core.AsyncResult;
@@ -8,7 +7,6 @@ import org.vertx.java.platform.Verticle;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.MultiMap;
 import org.vertx.java.core.VoidHandler;
-import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.eventbus.EventBus;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServerRequest;
@@ -64,7 +62,7 @@ public class HttpServer extends Verticle {
                             }
                             
                             EventBus eb = vertx.eventBus();
-                            eb.sendWithTimeout("epms.email.in", emailObj, 10000, new Handler<AsyncResult<Message<JsonObject>>>() {
+                            eb.sendWithTimeout("epms.email.in", emailObj, 20000, new Handler<AsyncResult<Message<JsonObject>>>() {
                                 @Override
                                 public void handle(AsyncResult<Message<JsonObject>> result) {
                                     if (result.succeeded()) {
