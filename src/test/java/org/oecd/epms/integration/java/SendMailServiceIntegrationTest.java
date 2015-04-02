@@ -35,6 +35,7 @@ public class SendMailServiceIntegrationTest extends TestVerticle {
         emailObj.putString("to", "reget.kalamees@helmes.ee");
         emailObj.putString("subject", "Int test");
         emailObj.putString("body", "test");
+        emailObj.putString("uuid", "xyx");
         
         vertx.eventBus().send("epms.email.in", emailObj, new Handler<Message<JsonObject>>() {
             @Override

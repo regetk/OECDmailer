@@ -61,7 +61,12 @@ public class SendMailService extends Verticle {
             @Override
             public void handle(Message<JsonObject> message) {
                 JsonObject messageBody = message.body();
+                logger.info(messageBody);
                 StatusMessageJSON answer = new StatusMessageJSON();
+                String uuid = messageBody.getString("uuid");
+                if (uuid == null) {
+                    uuid = "";
+                }
                 try {
                     if (!inputValid(messageBody)) {
                         answer.setError();
@@ -79,8 +84,10 @@ public class SendMailService extends Verticle {
                     e.printStackTrace(pw);
                     answer.setStacktrace(sw.toString());
                 } finally {
+                    logger.info("epms.email.out." + uuid);
+                    eb.send("epms.email.out." + uuid, answer.getJsonObject());
+                    //for integration test only
                     message.reply(answer.getJsonObject());
-                    eb.send("epms.email.out", answer.getJsonObject());
                 }
             }
         };
@@ -126,7 +133,7 @@ public class SendMailService extends Verticle {
         try {
             transport = session.getTransport("smtp");
             transport.connect();
-            
+
         } catch (MessagingException e) {
             String message = "Failed to setup mail transport";
             logger.error("Failed to setup mail transport", e);
@@ -166,7 +173,7 @@ public class SendMailService extends Verticle {
             msg.setSubject(subject);
             msg.setContent(body, contentType);
             msg.setSentDate(new Date());
-            transport.sendMessage(msg,msg.getAllRecipients());
+            transport.sendMessage(msg, msg.getAllRecipients());
             transport.close();
 
         } catch (MessagingException e) {
@@ -206,6 +213,11 @@ public class SendMailService extends Verticle {
 
         String body = mailMessage.getString("body");
         if (body == null || body.length() == 0) {
+            return false;
+        }
+
+        String uuid = mailMessage.getString("uuid");
+        if (uuid == null || uuid.length() == 0) {
             return false;
         }
 

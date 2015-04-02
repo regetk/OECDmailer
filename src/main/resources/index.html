@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Bootstrap Example</title>
+        <title>OECD Email sendee</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/0.3.4/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vertx/2.0.0/vertxbus.min.js"></script>
         <style>
 
         </style>
@@ -67,13 +68,45 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <div class="alert alert-success hidden" role="alert" id="success_alert">E-mail sent successfully!</div>
-                        <div class="alert alert-danger hidden" role="alert" id="error_alert"></div>
                     </div>
                 </div>
             </div>
         </div>
         <script>
+            function generateUUID() {
+                var d = new Date().getTime();
+                var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = (d + Math.random() * 16) % 16 | 0;
+                    d = Math.floor(d / 16);
+                    return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+                return uuid;
+            }
+            var uuid=generateUUID();
+
+            var eb = new vertx.EventBus('http://localhost:8080/mailbus');
+            eb.onopen = function () {
+                //to avoid, another browser gets answer
+                eb.registerHandler('epms.email.out.'+uuid, function (data) {
+                    var message = "";
+                    if (data.status != undefined) {
+                        message += ("Status: " + data.status + "\n");
+                    }
+                    if (data.message != undefined) {
+                        message += ("Message: " + data.message + "\n");
+                    }
+                    if (data.stacktrace != undefined) {
+                        if (data.stacktrace.length > 0) {
+                            message += ("Stacktrace: " + data.stacktrace + "\n");
+                        }
+                    }
+                    alert(message);
+
+                });
+            };
+
+
+
 
             $("#mailForm").submit(function (event) {
                 event.preventDefault();
@@ -81,45 +114,23 @@
                     event.preventDefault();
                 }
                 else {
-                    var data= $("#mailForm").serialize();
-                    var jData=JSON.stringify(data);
-                    $.ajax({
-                        url: 'http://localhost:8080/form',
-                        data: data, 
-                        dataType: 'json', 
-                        type: 'POST', 
-                        async: false,
-                        success: function (data) {
-                            var message="";
-                            if(data.status!=undefined){
-                                message+=("Status: "+data.status+"\n");
-                            }
-                            if(data.message!=undefined){
-                                message+=("Message: "+data.message+"\n");
-                            }
-                            if(data.stacktrace!=undefined){
-                                message+=("Stacktrace: "+data.stacktrace+"\n");
-                            }
-                           alert(message); 
-                                
+                    var to = $("#email").val();
+                    var subject = $("#subject").val();
+                    var body = $("#email_text").val();
 
-                        },
-                        error: function (data) { 
-                        }
-                    });
-                    
+                    var data = new Object();
+                    data.to = to;
+                    data.subject = subject;
+                    data.body = body;
+                    data.uuid=uuid;
+                    eb.send('epms.email.in', data);
                 }
             });
 
 
             $('.modal').on('hidden.bs.modal', function () {
                 $(this).find('form')[0].reset();
-                $('#alert_success').hide();
-                $('#alert_error').hide();
             });
-
-
-
         </script>
 
     </body>

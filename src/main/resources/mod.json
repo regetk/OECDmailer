@@ -1,5 +1,5 @@
 {
-    "main": "org.oecd.server.HttpServer",
+    "main": "org.oecd.server.OecdVertxServer",
     "description": "OECD test emailer",
     "licenses": ["The Apache Software License Version 2.0"],
     "author": "Reget Kalamees",

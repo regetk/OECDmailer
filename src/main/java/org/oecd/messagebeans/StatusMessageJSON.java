@@ -7,10 +7,10 @@ import org.vertx.java.core.json.JsonObject;
  * @author reget.kalamees
  */
 public class StatusMessageJSON {
-    private JsonObject jsonObject;
-    private String message="message";
-    private String status="status";
-    private String stacktrace="stacktrace";
+    private final JsonObject jsonObject;
+    private final String message="message";
+    private final String status="status";
+    private final String stacktrace="stacktrace";
     
     public StatusMessageJSON(){
         jsonObject=new JsonObject();
